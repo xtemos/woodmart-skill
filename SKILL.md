@@ -67,6 +67,22 @@ Read `get-ability-info` before the first call of each ability. The live descript
 If the woodmart MCP is unavailable or every call fails, stop and tell the user the server name and error.
 Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 
+## Design: match the site
+
+1. **Take values from the site, not from taste.** Before authoring a section, read a similar section of the
+   site (or the template you start from) and reuse its spacing, heading sizes, colors and radius.
+2. **Inherit globals.** Fonts, colors and rounding come from Theme Settings. Use theme color variables
+   (`var(--wd-primary-color)`, or the block's color-variable attribute) instead of hex copies; set a value
+   only where it differs from the global one.
+3. **One spacing system.** Space sections with the bottom margin of the upper one; padding only on blocks
+   with a background or border; space items with the container gap.
+4. **No wrapper without a reason** (a background, a column, sticky, its own responsive behavior).
+5. **Responsive.** Reduce large headings and spacing on tablet and mobile; 4+ columns become 2 on tablet and
+   1 on mobile (or a carousel when there are many items). A fixed px width needs `100%` on tablet. No `calc()`,
+   `min()` or `clamp()` in width fields, no `<br>` to break lines.
+6. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
+   list them in the report.
+
 ## Page content: choose the builder
 
 - **Existing content:** the `builder` from `search-content` decides. Gutenberg abilities read an Elementor
