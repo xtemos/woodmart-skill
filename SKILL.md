@@ -70,7 +70,8 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 ## Design: match the site
 
 1. **Take values from the site, not from taste.** Before authoring a section, read a similar section of the
-   site (or the template you start from) and reuse its spacing, heading sizes, colors and radius.
+   site and reuse its spacing, heading sizes, colors and radius; when the site has none, use the closest
+   WoodMart template's values.
 2. **Inherit globals.** Fonts, colors and rounding come from Theme Settings. Use theme color variables
    (`var(--wd-primary-color)`, or the block's color-variable attribute) instead of hex copies; set a value
    only where it differs from the global one.
@@ -81,7 +82,7 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    1 on mobile (or a carousel when there are many items). A fixed px width needs `100%` on tablet. No `calc()`,
    `min()` or `clamp()` in width fields, no `<br>` to break lines.
 6. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
-   list them in the report.
+   list them in the report. Ask for missing images instead of uploading random ones.
 
 ## Page content: choose the builder
 
@@ -193,7 +194,7 @@ A portfolio project is content of post type `portfolio` (needs the Portfolio the
 | Change part of a page | `elementor-edit-elements` (operations + `expected_content_hash`) |
 | Fill an empty target or deliberately rebuild all of it | `elementor-replace-content` |
 | Document settings (popup size and style, slide `wd_*`, page settings) | `elementor-get-document-settings` → `elementor-update-document-settings` |
-| Reuse a demo section or page | `elementor-search-templates` → `elementor-get-template` (read-only, to inspect it) → pass `template_id` to the write |
+| Reuse a demo section or page | `elementor-search-templates` → as is: pass `template_id` to the write; to change it first (texts, number of items): `elementor-get-template`, edit the tree, send it as `elements` |
 
 Writes are synchronous: each one validates the whole tree and saves immediately; an invalid tree saves
 nothing. `replace-content` needs `allow_content_loss` to drop existing content; set it only if the user asked.
