@@ -19,6 +19,7 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Page/post/product/term options (page title, sidebar, header off, product layout…), popup and rule style fields | `get-metaboxes` → `update-metaboxes` |
 | Theme setting for the whole site | `list-theme-settings` → `get-theme-setting` → `update-theme-setting(s)` |
 | Theme setting only on some pages | preset: `list-theme-settings-presets` → `save-theme-settings-preset` → `update-theme-settings` with `preset_id` |
+| Back up Theme Settings before many changes; undo them | `create-theme-settings-backup`; later `list-theme-settings-backups` → `get-theme-settings-backup` (what differs now) → `update-theme-settings` with the `backup_value` of the settings to restore |
 | Header, logo, header elements (desktop and mobile columns hold separate elements, e.g. two logos) | `list-headers` → `get-header` → `describe-header-element` → `edit-header` |
 | Menu items, mega menu (also the menu a header shows) | `list-menus` → `get-menu` → `describe-menu-item-settings` → `edit-menu`; `create-menu` |
 | Media | `list-media` first; `upload-media` (a URL) or `request-media-upload` (local files); `update-media` for alt/title |
