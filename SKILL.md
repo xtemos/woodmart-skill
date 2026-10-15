@@ -196,6 +196,7 @@ A portfolio project is content of post type `portfolio` (needs the Portfolio the
 | Fill an empty target or deliberately rebuild all of it | `elementor-replace-content` |
 | Document settings (popup size and style, slide `wd_*`, page settings) | `elementor-get-document-settings` → `elementor-update-document-settings` |
 | Reuse a demo section or page | `elementor-search-templates` → as is: pass `template_id` to the write; to change it first (texts, number of items): `elementor-get-template`, edit the tree, send it as `elements` |
+| Clear Elementor's CSS files and cache (Tools > Clear Files & Data), e.g. when a page renders stale styles | `elementor-clear-cache` |
 
 Writes are synchronous: each one validates the whole tree and saves immediately; an invalid tree saves
 nothing. `replace-content` needs `allow_content_loss` to drop existing content; set it only if the user asked.
