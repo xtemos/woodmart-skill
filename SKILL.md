@@ -78,12 +78,17 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    only where it differs from the global one.
 3. **One spacing system.** Space sections with the bottom margin of the upper one; padding only on blocks
    with a background or border; space items with the container gap.
-4. **No wrapper without a reason** (a background, a column, sticky, its own responsive behavior).
-5. **Responsive.** Reduce large headings and spacing on tablet and mobile; 4+ columns become 2 on tablet and
+4. **Theme gap.** The theme leaves 40px between the content and both the header and the footer. For a page
+   that must touch the header, set `margin-top: -40` on its first block or container; to touch the footer,
+   `margin-bottom: -40` on the last one. Otherwise leave the gap alone.
+5. **No wrapper without a reason** (a background, a column, sticky, its own responsive behavior).
+6. **Responsive.** Reduce large headings and spacing on tablet and mobile; 4+ columns become 2 on tablet and
    1 on mobile (or a carousel when there are many items). A fixed px width needs `100%` on tablet. No `calc()`,
    `min()` or `clamp()` in width fields, no `<br>` to break lines.
-6. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
+7. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
    list them in the report. Ask for missing images instead of uploading random ones.
+8. **Wishlist and Compare.** If the site needs them and the pages do not exist, create them with
+   `create-content`; then pick them in Theme Settings (`wishlist_page`, `compare_page`).
 
 ## Page content: choose the builder
 
