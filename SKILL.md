@@ -175,14 +175,29 @@ attribute:
 ### Finalization
 
 Every block-content write is queued and is not live until its batch reaches `finalized`. No other ability
-uses the block queue.
+uses the block queue. A batch is finalized in one of three ways, in this order of preference:
 
-1. Follow the queue response's `user_instruction`. Ask the user to keep **WoodMart → Tools → AI Block Queue**
-   open in wp-admin.
-2. Call `gutenberg-enable-finalization` when the response says the batch is still a draft. `create-content`
-   or `create-layout` with `block_spec` already marks its batch ready, so do not enable it again.
-3. Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`.
-4. On `conflicted`, re-read the target and repeat the edit against the current content.
+1. **On the server.** When the site has Node, `gutenberg-enable-finalization` (or `create-content` /
+   `create-layout` with `block_spec`) finalizes the batch during the call: the response has
+   `batch_status: finalized` and `finalized_by: server`. Nothing else to do.
+2. **From your computer.** When the batch comes back `ready` with `local_serializer.command`, and you can run
+   commands and have Node 18 or newer, run that command as is:
+   `curl -sS -H "X-WD-AI-Token: <token>" "<site>/wp-json/woodmart-mcp/v1/gb-queue/local/runner" | node`.
+   It serializes the blocks on your computer and prints `Batch #N finalized.` (exit 0), or the reason it
+   could not. The token is one-time and expires in 15 minutes; `gutenberg-get-pending-batch` returns the
+   same command while it is alive and a new one afterwards. Do not edit the command or reuse a token.
+3. **In the browser.** Otherwise ask the user to open **WoodMart → Tools → AI Block Queue** in wp-admin
+   and keep it open; the page finalizes the batch and shows a journal with Retry, Cancel and Copy error.
+
+In every case:
+
+- Follow the queue response's `user_instruction`; it already says which way applies.
+- Call `gutenberg-enable-finalization` only when the batch is still a draft, after every change of the
+  batch is queued. `create-content` or `create-layout` with `block_spec` already marks its batch ready.
+- Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`; `finalizer_online`
+  tells whether an AI Block Queue page is open, `server_serializer` whether the site has Node.
+- On `failed`, read `last_error` (also shown in the journal), fix the change and queue it again.
+- On `conflicted`, re-read the target and repeat the edit against the current content.
 
 Only one active pending change may exist per target. Cancel an obsolete non-finalized batch with
 `gutenberg-delete-pending-batch` before queuing a replacement.
