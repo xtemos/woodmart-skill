@@ -20,11 +20,18 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Theme setting for the whole site | `list-theme-settings` → `get-theme-setting` → `update-theme-setting(s)` |
 | Theme setting only on some pages | preset: `list-theme-settings-presets` → `save-theme-settings-preset` → `update-theme-settings` with `preset_id` |
 | Back up Theme Settings before many changes; undo them | `create-theme-settings-backup`; later `list-theme-settings-backups` → `get-theme-settings-backup` (what differs now) → `update-theme-settings` with the `backup_value` of the settings to restore |
+| Site title, tagline, language, home page and posts page | `get-site-settings` → `update-site-settings` |
 | Header, logo, header elements (desktop and mobile columns hold separate elements, e.g. two logos) | `list-headers` → `get-header` → `describe-header-element` → `edit-header` |
+| New header; where a header shows (site default, post types, single pages) | `create-header`; `set-header-assignment` |
 | Menu items, mega menu (also the menu a header shows) | `list-menus` → `get-menu` → `describe-menu-item-settings` → `edit-menu`; `create-menu` |
 | Media | `list-media` first; `upload-media` (a URL) or `request-media-upload` (local files); `update-media` for alt/title |
-| Categories, tags, attributes, swatches (a value becomes a swatch through its term's `swatch_text` / `swatch_color` / `swatch_image_id`) | `list-taxonomies` → `list-terms` → `create-term` / `update-term` / `set-object-terms`; `create-product-attribute` |
-| Products (a variable product's prices live in its variations) | `create-simple-product` / `create-variable-product`, then `update-product` (WooCommerce fields) and `update-product-data` (WoodMart fields: size guide, 360, videos, bundles, variation images) |
+| Categories, tags, attributes, swatches (a value becomes a swatch through its term's `swatch_text` / `swatch_color` / `swatch_image_id`) | `list-taxonomies` → `list-terms` → `create-term` / `update-term` / `set-object-terms`; `create-product-attribute` / `update-product-attribute` (name, slug, swatch style) |
+| Products (a variable product's prices live in its variations) | `create-simple-product` / `create-variable-product`; `get-product` → `update-product` (WooCommerce fields); `get-product-data` → `update-product-data` (WoodMart fields: size guide, 360, videos, bundles, variation images); `update-product-variations` (prices, stock, new variations) |
+| Product reviews (read only) | `get-product-reviews` |
+| Coupons | `get-coupons` → `create-coupon` / `update-coupon` |
+| WooCommerce settings (currency, store address, pages, accounts, emails) | `get-store-settings` → `update-store-settings` |
+| Shipping zones and methods; taxes; payment methods | `get-shipping` → `update-shipping`; `get-taxes` → `update-taxes`; `get-payment-gateways` → `update-payment-gateways` |
+| Store live or "coming soon" | `get-store-visibility` → `update-store-visibility` |
 | Where and when (triggers) a popup, floating block, label, size guide, product tab or Woo rule shows | `get-display-conditions` → `set-display-conditions` |
 | Woo rules (discounts, free gifts, delivery, bundles, linked variations) | `create-woo-rule`, then conditions and `update-metaboxes` |
 | Layouts (shop, product, cart, blog…) | `list-layout-types` → `create-layout` → `set-layout-conditions` |
