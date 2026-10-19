@@ -19,14 +19,14 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Page/post/product/term options (page title, sidebar, header off, product layout…), popup and rule style fields | `get-metaboxes` → `update-metaboxes` |
 | Theme setting for the whole site | `list-theme-settings` → `get-theme-setting` → `update-theme-setting(s)` |
 | Theme setting only on some pages | preset: `list-theme-settings-presets` → `save-theme-settings-preset` → `update-theme-settings` with `preset_id` |
-| Back up Theme Settings before many changes; undo them | `create-theme-settings-backup`; later `list-theme-settings-backups` → `get-theme-settings-backup` (what differs now) → `update-theme-settings` with the `backup_value` of the settings to restore |
+| Back up Theme Settings before many changes; undo them | `create-theme-settings-backup`; later `list-theme-settings-backups` → `compare-theme-settings-backup` (what differs now) → `update-theme-settings` with the `backup_value` of the settings to restore |
 | Site title, tagline, language, home page and posts page | `get-site-settings` → `update-site-settings` |
 | Header, logo, header elements (desktop and mobile columns hold separate elements, e.g. two logos) | `list-headers` → `get-header` → `describe-header-element` → `edit-header` |
 | New header; where a header shows (site default, post types, single pages) | `create-header`; `set-header-assignment` |
 | Menu items, mega menu (also the menu a header shows) | `list-menus` → `get-menu` → `describe-menu-item-settings` → `edit-menu`; `create-menu` |
 | Media | `list-media` first; `upload-media` (a URL) or `request-media-upload` (local files); `update-media` for alt/title |
 | Categories, tags, attributes, swatches (a value becomes a swatch through its term's `swatch_text` / `swatch_color` / `swatch_image_id`) | `list-taxonomies` → `list-terms` → `create-term` / `update-term` / `set-object-terms`; `create-product-attribute` / `update-product-attribute` (name, slug, swatch style) |
-| Products (a variable product's prices live in its variations) | `create-simple-product` / `create-variable-product`; `get-product` → `update-product` (WooCommerce fields); `get-product-data` → `update-product-data` (WoodMart fields: size guide, 360, videos, bundles, variation images); `update-product-variations` (prices, stock, new variations) |
+| Products (a variable product's prices live in its variations) | `create-simple-product` / `create-variable-product`; `get-product` → `update-product` (WooCommerce fields); `get-product-woodmart-fields` → `update-product-woodmart-fields` (WoodMart fields: size guide, 360, videos, bundles, variation images); `update-product-variations` (prices, stock, new variations) |
 | Product reviews (read only) | `get-product-reviews` |
 | Coupons | `get-coupons` → `create-coupon` / `update-coupon` |
 | WooCommerce settings (currency, store address, pages, accounts, emails) | `get-store-settings` → `update-store-settings` |
@@ -95,7 +95,8 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 7. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
    list them in the report. Ask for missing images instead of uploading random ones.
 8. **Wishlist and Compare.** If the site needs them and the pages do not exist, create them with
-   `create-content`; then pick them in Theme Settings (`wishlist_page`, `compare_page`).
+   `gutenberg-create-content` or `elementor-create-content` (by the site's builder); then pick them in Theme
+   Settings (`wishlist_page`, `compare_page`).
 
 ## Page content: choose the builder
 
@@ -112,10 +113,10 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 
 | Intent | Start with |
 |--------|------------|
-| Create a page, post, portfolio project, HTML block, popup, floating block, product tab, label or size guide | `create-content` |
+| Create a page, post, portfolio project, HTML block, popup, floating block, product tab, label or size guide | `gutenberg-create-content` |
 | Read a target's block tree | `gutenberg-get-content` |
 | Change blocks in a non-empty target | `gutenberg-edit-blocks` |
-| Fill an empty target or deliberately rebuild all of it | `gutenberg-add-pending-change` |
+| Fill an empty target or deliberately rebuild all of it | `gutenberg-replace-content` |
 | Discover blocks and their attributes | `gutenberg-list-blocks`, then `gutenberg-describe-block` |
 | Reuse a demo section or page | `gutenberg-search-templates`, then `gutenberg-get-template` |
 
@@ -129,7 +130,7 @@ These rules are non-negotiable because violating them can silently lose content 
 1. **Never rebuild a target to change only part of it.** Read it with `gutenberg-get-content`, then use
    `gutenberg-edit-blocks` and send only the operations and attribute keys that change. This includes
    requests such as "update all texts on the page." Untouched blocks and attributes must be omitted.
-2. Use `gutenberg-add-pending-change` only for an empty target or when the user explicitly asks to
+2. Use `gutenberg-replace-content` only for an empty target or when the user explicitly asks to
    replace/rebuild the entire target.
 3. Author text and content in the attribute named by `gutenberg-describe-block`'s `contentAttribute`.
    Do not hand-write `innerHTML` for content updates. Existing `innerHTML` is round-trip data for content the
@@ -148,10 +149,10 @@ replacement as a workaround for this limitation.
 
 ```text
 Existing blocks?
-├── no  → create-content with block_spec, or gutenberg-add-pending-change
+├── no  → gutenberg-create-content with block_spec, or gutenberg-replace-content
 └── yes → Explicit full rebuild requested?
           ├── no  → gutenberg-edit-blocks
-          └── yes → gutenberg-add-pending-change
+          └── yes → gutenberg-replace-content
 ```
 
 For a text edit, describe the block if the content attribute is not already known, then update only that
@@ -182,32 +183,25 @@ attribute:
 ### Finalization
 
 Every block-content write is queued and is not live until its batch reaches `finalized`. No other ability
-uses the block queue. A batch is finalized in one of three ways, in this order of preference:
+uses the block queue. The batch is finalized by the **WoodMart → Tools → AI Block Queue** page in wp-admin:
+it runs the real block editor in the user's browser, serializes the queued blocks and commits them. Nothing
+is finalized on the server or by the agent.
 
-1. **On the server.** When the site has Node, `gutenberg-enable-finalization` (or `create-content` /
-   `create-layout` with `block_spec`) finalizes the batch during the call: the response has
-   `batch_status: finalized` and `finalized_by: server`. Nothing else to do.
-2. **From your computer.** When the batch comes back `ready` with `local_serializer.command`, and you can run
-   commands and have Node 18 or newer, run that command as is:
-   `curl -sS -H "X-WD-AI-Token: <token>" "<site>/wp-json/woodmart-mcp/v1/gb-queue/local/runner" | node`.
-   It serializes the blocks on your computer and prints `Batch #N finalized.` (exit 0), or the reason it
-   could not. The token is one-time and expires in 15 minutes; `gutenberg-get-pending-batch` returns the
-   same command while it is alive and a new one afterwards. Do not edit the command or reuse a token.
-3. **In the browser.** Otherwise ask the user to open **WoodMart → Tools → AI Block Queue** in wp-admin
-   and keep it open; the page finalizes the batch and shows a journal with Retry, Cancel and Copy error.
+1. Queue every change of the batch (`gutenberg-replace-content` / `gutenberg-edit-blocks` with the same
+   `batch_id`), then call `gutenberg-finalize-batch` once to mark the draft batch ready.
+   `gutenberg-create-content` or `create-layout` with `block_spec` already marks its batch ready.
+2. Ask the user to open the AI Block Queue page (`finalization_url`) and keep it open; it picks up ready
+   batches by itself and shows a journal with Retry, Cancel and Copy error. Follow the response's
+   `user_instruction`.
+3. Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`. `finalizer_online: false`
+   means no AI Block Queue page asked for work in the last minute: remind the user to open it.
 
-In every case:
-
-- Follow the queue response's `user_instruction`; it already says which way applies.
-- Call `gutenberg-enable-finalization` only when the batch is still a draft, after every change of the
-  batch is queued. `create-content` or `create-layout` with `block_spec` already marks its batch ready.
-- Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`; `finalizer_online`
-  tells whether an AI Block Queue page is open, `server_serializer` whether the site has Node.
-- On `failed`, read `last_error` (also shown in the journal), fix the change and queue it again.
+- On `failed`, read `last_error` and the items' `validation_errors` (also in the journal), fix the change and
+  queue it again: a new change on the same target replaces the failed one.
 - On `conflicted`, re-read the target and repeat the edit against the current content.
 
-Only one active pending change may exist per target. Cancel an obsolete non-finalized batch with
-`gutenberg-delete-pending-batch` before queuing a replacement.
+Only one active pending change may exist per target: a second one is refused until the first is finalized.
+Cancel an obsolete non-finalized batch with `gutenberg-delete-pending-batch` before queuing a replacement.
 
 Edit an existing layout's blocks against its `target_id`; do not recreate the layout to change its content.
 A portfolio project is content of post type `portfolio` (needs the Portfolio theme option); edit it like a page.
