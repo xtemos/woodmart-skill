@@ -15,6 +15,46 @@ parameter lists.
 
 Use `mcp-adapter-execute-ability` with `ability_name` and `parameters` to execute an ability.
 
+If the wood MCP is unavailable or every call fails, stop and tell the user the server name and error.
+Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
+
+## Rules for every task
+
+1. **Reuse before building.** Look for what the site already has (a similar section or HTML block) and for
+   a WoodMart demo template (`gutenberg-search-templates`) before authoring from scratch. A close template
+   with other texts is still the better start: insert it and change only the texts (its demo images are
+   copied to the media library). Prefer WoodMart blocks (`wd/*`) over core ones when both fit.
+2. **Read, then write only the difference.** Read the current state right before a write and send only what
+   changes, with the hash that read returned. Do not send values equal to the defaults. Where a description
+   says a list is complete or replaces the old one (layout conditions), send every entry that must remain.
+3. **Report what really happened.** Relay `warnings` (a moved URL, a preset override, a setting with no
+   effect). List what you could not do as "where → field → value" for the user. Re-read after writing. Check
+   visible changes on the front end at desktop, tablet and mobile widths when you can open the site;
+   otherwise ask the user to check them.
+
+## Design: match the site
+
+1. **Take values from the site, not from taste.** Before authoring a section, read a similar section of the
+   site and reuse its spacing, heading sizes, colors and radius; when the site has none, use the closest
+   WoodMart template's values.
+2. **Inherit globals.** Fonts, colors and rounding come from Theme Settings. Use theme color variables
+   (`var(--wd-primary-color)`, or the block's color-variable attribute) instead of hex copies; set a value
+   only where it differs from the global one.
+3. **One spacing system.** Space sections with the bottom margin of the upper one; padding only on blocks
+   with a background or border; space items with the container gap.
+4. **Theme gap.** The theme leaves 40px between the content and both the header and the footer. For a page
+   that must touch the header, set `margin-top: -40` on its first block or container; to touch the footer,
+   `margin-bottom: -40` on the last one. Otherwise leave the gap alone.
+5. **No wrapper without a reason** (a background, a column, sticky, its own responsive behavior).
+6. **Responsive.** Reduce large headings and spacing on tablet and mobile; 4+ columns become 2 on tablet and
+   1 on mobile (or a carousel when there are many items). A fixed px width needs `100%` on tablet. No `calc()`,
+   `min()` or `clamp()` in width fields, no `<br>` to break lines.
+7. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
+   list them in the report. Ask for missing images instead of uploading random ones.
+8. **Wishlist and Compare.** If the site needs them and the pages do not exist, create them with
+   `create-content`; then pick them in Theme Settings (`wishlist_page`, `compare_page`) with
+   `update-theme-setting`.
+
 ## Routing
 
 | Intent | Start with |
@@ -107,7 +147,8 @@ the block queue.
    `create-content` or `create-layout` with `block_spec` already marks its batch ready, so do not
    enable it again.
 3. Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`.
-4. On `conflicted`, re-read the target and repeat the edit against the current content.
+4. On `failed`, read `last_error` and the items' `validation_errors`, fix the change and queue it again.
+5. On `conflicted`, re-read the target and repeat the edit against the current content.
 
 Only one active pending change may exist per target. Cancel an obsolete non-finalized batch
 with `gutenberg-delete-pending-batch` before queuing a replacement.
