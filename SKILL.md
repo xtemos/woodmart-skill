@@ -236,6 +236,8 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
 4. **Use the control's own values.** A switcher takes its `on_value` from `describe-element` (often `"1"`), not
    a generic `"yes"`. A key that is not a control comes back as `wd_ai_unknown_setting`: on classic elements Elementor
    stores it but ignores it, so fix it from the "Did you mean" hint.
+   Copy the shape of a value from the control's `default` in `describe-element` (e.g. `padding`:
+   `{"unit":"px","top":"0","right":"0","bottom":"35","left":"0","isLinked":false}`).
 5. **Write tiny.** Edit only the elements and keys that change, by `elementId`. Omit `id` on new elements.
    Every `elementor-edit-elements` operation needs `op`: `{"op":"update","elementId":"abc1234","settings":{…}}`,
    `{"op":"insert","element":{…},"position":"last-child","anchor":"<parent id>"}`, `{"op":"delete","elementId":"…"}`,
