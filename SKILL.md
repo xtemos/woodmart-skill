@@ -237,6 +237,10 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    a generic `"yes"`. A key that is not a control comes back as `wd_ai_unknown_setting`: on classic elements Elementor
    stores it but ignores it, so fix it from the "Did you mean" hint.
 5. **Write tiny.** Edit only the elements and keys that change, by `elementId`. Omit `id` on new elements.
+   Every `elementor-edit-elements` operation needs `op`: `{"op":"update","elementId":"abc1234","settings":{…}}`,
+   `{"op":"insert","element":{…},"position":"last-child","anchor":"<parent id>"}`, `{"op":"delete","elementId":"…"}`,
+   `{"op":"move","elementId":"…","position":"after","anchor":"…"}`. `elementor-get-content` takes one `element_id`
+   (a string, not a list): call it once per element.
 6. Popup, floating block and product tab display conditions are not document settings: use
    `set-display-conditions`. A layout made with `create-layout` without `predefined_name` starts empty: fill it with
    `elementor-replace-content`. A `wd_slider` widget takes the slider's slug; slide content is written with
