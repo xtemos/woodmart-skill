@@ -21,6 +21,7 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Theme setting only on some pages | preset: `list-theme-settings-presets` → `save-theme-settings-preset` → `update-theme-settings` with `preset_id` |
 | Back up Theme Settings before many changes; undo them | `create-theme-settings-backup`; later `list-theme-settings-backups` → `compare-theme-settings-backup` (what differs now) → `update-theme-settings` with the `backup_value` of the settings to restore |
 | Site title, tagline, language, home page and posts page | `get-site-settings` → `update-site-settings` |
+| Appearance → Customize (WooCommerce image sizes, store notice, catalog, additional CSS…) | `get-customizer-settings` → `update-customizer-settings` |
 | Header, logo, header elements (desktop and mobile columns hold separate elements, e.g. two logos) | `list-headers` → `get-header` → `describe-header-element` → `edit-header` |
 | New header; where a header shows (site default, post types, single pages) | `create-header`; `set-header-assignment` |
 | Menu items, mega menu (also the menu a header shows) | `list-menus` → `get-menu` → `describe-menu-item-settings` → `edit-menu`; `create-menu` |
@@ -218,6 +219,7 @@ A portfolio project is content of post type `portfolio` (needs the Portfolio the
 | Document settings (popup size and style, slide `wd_*`, page settings) | `elementor-get-document-settings` → `elementor-update-document-settings` |
 | Reuse a demo section or page | `elementor-search-templates` → as is: pass `template_id` to the write; to change it first (texts, number of items): `elementor-get-template`, edit the tree, send it as `elements` |
 | Clear Elementor's CSS files and cache (Tools > Clear Files & Data), e.g. when a page renders stale styles | `elementor-clear-cache` |
+| Elementor → Settings and Features; the kit id for Site Settings | `elementor-get-settings` → `elementor-update-settings` |
 
 Writes are synchronous: each one validates the whole tree and saves immediately; an invalid tree saves
 nothing. `replace-content` needs `allow_content_loss` to drop existing content; set it only if the user asked.
@@ -229,8 +231,9 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
 2. **Build with `container` and `wd_*` widgets.** An empty `flex_direction` renders as a column: set
    `flex_direction: "row"` for side-by-side items (and `flex_direction_mobile: "column"` to stack them).
    Items in a row do not share the width equally by themselves; for equal columns use `container_type: "grid"` with
-   `grid_columns_grid` (defaults: 3 columns and 2 rows). Containers get the kit's default padding (10px) unless
-   `padding` is set. `wd_infobox` takes an image or text as its icon, not an icon font.
+   `grid_columns_grid` (defaults: 3 columns and 2 rows). On the WoodMart standard the kit gives containers no
+   padding; on a site that is not set up yet, run the section below first. Set `padding` only on containers with a
+   background or border. `wd_infobox` takes an image or text as its icon, not an icon font.
 3. **Set every visible text.** Unset text controls render placeholder defaults (e.g. "Infobox subtitle text",
    "Read more"); give each one a value or `""`.
 4. **Use the control's own values.** A switcher takes its `on_value` from `describe-element` (often `"1"`), not
@@ -247,3 +250,24 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    `set-display-conditions`. A layout made with `create-layout` without `predefined_name` starts empty: fill it with
    `elementor-replace-content`. A `wd_slider` widget takes the slider's slug; slide content is written with
    `save-slide` `elements`.
+
+### Elementor site without the WoodMart demo import
+
+The demo import sets Elementor and WooCommerce up the WoodMart way. A site without it shows a non-empty
+`missing_theme_values` in `elementor-get-settings`; set it up before authoring content. Every step changes the
+whole site: tell the user what will change and get a yes first.
+
+1. Pass `missing_theme_values` from `elementor-get-settings` as the input of `elementor-update-settings`, as is
+   (post types Elementor edits, default colors and fonts off, the Container feature on).
+2. Kit (Site Settings): `elementor-update-document-settings` with `target_id` = `kit_id` from
+   `elementor-get-settings`: `container_padding` `{"unit":"px","top":"0","right":"0","bottom":"0","left":"0","isLinked":true}`,
+   `viewport_mobile` `768.98`, and `system_typography` with the same entries (`_id`, `title`,
+   `typography_typography`, `typography_font_weight`) but without `typography_font_family`, so texts use the theme
+   fonts. Then `elementor-clear-cache`, or the old mobile breakpoint stays in the CSS.
+3. `update-customizer-settings`: `woocommerce_single_image_width` `1200`, `woocommerce_thumbnail_image_width` `600`.
+4. Pages: the blog page with `update-site-settings` (`show_on_front` `page`, `page_for_posts`); the shop page with
+   `update-store-settings` (group `products`, `woocommerce_shop_page_id`); registration on My account with
+   `update-store-settings` (group `account`, `woocommerce_enable_myaccount_registration`); cart, checkout and my
+   account without sidebar with `update-metaboxes` (`_woodmart_main_layout` `full-width`).
+5. Ask the user to open wp-admin once: the theme then gives Elementor's new div and section blocks no padding.
+   The import also removes the Uncategorized product category; MCP cannot delete it, so tell the user.
