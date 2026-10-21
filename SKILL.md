@@ -264,8 +264,8 @@ except the V4 off-canvas element. Style V4 containers with local `styles` (shape
 9. **No global classes; do not create or change variables** (Theme Settings writes the theme ones on save).
    Theme variables: `theme-primary-color`, `theme-alternative-color`, `theme-border-radius`. V4 styles:
    `{"$$type":"global-color-variable","value":"<e-gv id>"}` for colors, `{"$$type":"woodmart-size-variable","value":"<e-gv id>"}`
-   for the radius (read the id from an existing element or ask the user). V3 widgets:
-   `"__globals__":{"<color control>":"globals/colors?id=v4-theme-primary-color"}` (or `v4-theme-alternative-color`).
+   for the radius; ids from `elementor-list-variables`. V3 widgets: `"__globals__":{"<color control>":"globals/colors?id=<v3_global_id>"}`.
+   `elementor-get-settings` `editor` tells whether V4 is on.
 
 ### Elementor site without the WoodMart demo import
 
