@@ -126,8 +126,6 @@ Gutenberg abilities.
 
 ### Block-write rules
 
-These rules are non-negotiable because violating them can silently lose content or styling.
-
 1. **Never rebuild a target to change only part of it.** Read it with `gutenberg-get-content`, then use
    `gutenberg-edit-blocks` and send only the operations and attribute keys that change. This includes
    requests such as "update all texts on the page." Untouched blocks and attributes must be omitted.
@@ -147,14 +145,6 @@ These rules are non-negotiable because violating them can silently lose content 
 If a deliberate full replacement might touch classic/freeform content outside registered blocks, first read
 with `include_raw_content: true`; `block_spec` otherwise cannot represent that content. Do not use full
 replacement as a workaround for this limitation.
-
-```text
-Existing blocks?
-├── no  → gutenberg-create-content with block_spec, or gutenberg-replace-content
-└── yes → Explicit full rebuild requested?
-          ├── no  → gutenberg-edit-blocks
-          └── yes → gutenberg-replace-content
-```
 
 For a text edit, describe the block if the content attribute is not already known, then update only that
 attribute:
@@ -183,10 +173,9 @@ attribute:
 
 ### Finalization
 
-Every block-content write is queued and is not live until its batch reaches `finalized`. No other ability
-uses the block queue. The batch is finalized by the **WoodMart → Tools → AI Block Queue** page in wp-admin:
-it runs the real block editor in the user's browser, serializes the queued blocks and commits them. Nothing
-is finalized on the server or by the agent.
+Every block-content write is queued and is not live until its batch reaches `finalized`. Only the
+**WoodMart → Tools → AI Block Queue** page in the user's browser finalizes it (it runs the real block editor);
+neither the server nor the agent can.
 
 1. Queue every change of the batch (`gutenberg-replace-content` / `gutenberg-edit-blocks` with the same
    `batch_id`), then call `gutenberg-finalize-batch` once to mark the draft batch ready.
@@ -228,13 +217,13 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    `tab`, `section`, `names`, `prefix`). Never invent element names or control keys. Responsive values use
    the `_tablet` / `_mobile` suffixes it reports (ask for the base name; the suffixed keys are not listed).
    Tree shape: `{"elType":"container","settings":{…},"elements":[{"elType":"widget","widgetType":"wd_title","settings":{…}}]}`.
-2. **Build with `wd_*` widgets.** When `elementor-list-elements` has `e-flexbox`, lay pages out with V4
-   containers (see "Elementor V4 containers" below); otherwise use `container`. An empty `flex_direction` renders as a column: set
-   `flex_direction: "row"` for side-by-side items (and `flex_direction_mobile: "column"` to stack them).
-   Items in a row do not share the width equally by themselves; for equal columns use `container_type: "grid"` with
-   `grid_columns_grid` (defaults: 3 columns and 2 rows). On the WoodMart standard the kit gives containers no
-   padding; on a site that is not set up yet, run the section below first. Set `padding` only on containers with a
-   background or border. `wd_infobox` takes an image or text as its icon, not an icon font.
+2. **Build with `wd_*` widgets.** When `elementor-list-elements` has `e-flexbox`, lay out with V4 containers
+   (see "Elementor V4 containers"). With a V3 `container`: an empty `flex_direction` renders as a column; set
+   `flex_direction: "row"` for side-by-side items (and `flex_direction_mobile: "column"` to stack them). Items in a
+   row do not share the width equally; for equal columns use `container_type: "grid"` with `grid_columns_grid`
+   (defaults: 3 columns and 2 rows). On the WoodMart standard the kit gives containers no padding; on a site that
+   is not set up yet, run the last section first. Set `padding` only on containers with a background or border.
+   `wd_infobox` takes an image or text as its icon, not an icon font.
 3. **Set every visible text.** Unset text controls render placeholder defaults (e.g. "Infobox subtitle text",
    "Read more"); give each one a value or `""`.
 4. **Use the control's own values.** A switcher takes its `on_value` from `describe-element` (often `"1"`), not
@@ -272,11 +261,10 @@ except the V4 off-canvas element. Style V4 containers with local `styles` (shape
    open it on mobile with `wd_builder_off_canvas_column_btn`.
 8. **Deprecated widgets:** not `wd_banner_carousel`, `wd_infobox_carousel` or `wd_tabs`; use
    `wd_nested_carousel` with `wd_banner`, and `wd_tabs_nested`.
-9. **No global classes, and do not create variables.** Use the theme variables instead of fixed values:
-   `theme-primary-color`, `theme-alternative-color` and `theme-border-radius`. Theme Settings writes them on save;
-   never change them in Elementor. In V4 styles: `{"$$type":"global-color-variable","value":"<id>"}` for colors and
-   `{"$$type":"woodmart-size-variable","value":"<id>"}` for the radius (ids are `e-gv-…`; read them from an existing
-   element or ask the user). In V3 widgets the colors are global colors:
+9. **No global classes; do not create or change variables** (Theme Settings writes the theme ones on save).
+   Theme variables: `theme-primary-color`, `theme-alternative-color`, `theme-border-radius`. V4 styles:
+   `{"$$type":"global-color-variable","value":"<e-gv id>"}` for colors, `{"$$type":"woodmart-size-variable","value":"<e-gv id>"}`
+   for the radius (read the id from an existing element or ask the user). V3 widgets:
    `"__globals__":{"<color control>":"globals/colors?id=v4-theme-primary-color"}` (or `v4-theme-alternative-color`).
 
 ### Elementor site without the WoodMart demo import
