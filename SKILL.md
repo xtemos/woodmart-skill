@@ -228,7 +228,8 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    `tab`, `section`, `names`, `prefix`). Never invent element names or control keys. Responsive values use
    the `_tablet` / `_mobile` suffixes it reports (ask for the base name; the suffixed keys are not listed).
    Tree shape: `{"elType":"container","settings":{…},"elements":[{"elType":"widget","widgetType":"wd_title","settings":{…}}]}`.
-2. **Build with `container` and `wd_*` widgets.** An empty `flex_direction` renders as a column: set
+2. **Build with `wd_*` widgets.** When `elementor-list-elements` has `e-flexbox`, lay pages out with V4
+   containers (see "Elementor V4 containers" below); otherwise use `container`. An empty `flex_direction` renders as a column: set
    `flex_direction: "row"` for side-by-side items (and `flex_direction_mobile: "column"` to stack them).
    Items in a row do not share the width equally by themselves; for equal columns use `container_type: "grid"` with
    `grid_columns_grid` (defaults: 3 columns and 2 rows). On the WoodMart standard the kit gives containers no
@@ -250,6 +251,33 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    `set-display-conditions`. A layout made with `create-layout` without `predefined_name` starts empty: fill it with
    `elementor-replace-content`. A `wd_slider` widget takes the slider's slug; slide content is written with
    `save-slide` `elements`.
+
+### Elementor V4 containers
+
+Lay out with V4 containers (`e-flexbox`, `e-grid`); everything inside stays V3 (`wd_*` and classic widgets),
+except the V4 off-canvas element. Style V4 containers with local `styles` (shape in `elementor-describe-element`).
+
+1. **Stacked widgets:** `e-flexbox` with `flex-direction` `column`. A default `e-flexbox` is a row and squeezes V3
+   widgets to a few pixels.
+2. **Spacing:** V4 containers have no gap: set `gap` 20px on the `e-flexbox`. `gap` does nothing on `e-div-block`.
+3. **Columns:** equal widths: `e-grid`, one column on mobile (`grid-template-columns` `1fr`); widths by content:
+   row `e-flexbox`, `_flex_size: "grow"` on each widget, `flex-direction` `column` on mobile.
+4. **Full-width background, content at site width:** outer `e-flexbox` with `wd_stretch` `stretch`, inner
+   `e-flexbox` with `wd_stretch` `boxed`. Nothing else: no max-width, padding or justify-content.
+5. **WoodMart props** (strings, not booleans): `e-flexbox` has `wd_stretch` and `wd_color_scheme`; `e-div-block`
+   only `wd_color_scheme`; `e-grid` none. Everything else is Elementor's own styles.
+6. **Use a V3 `container` instead** when the wrapper needs a WoodMart animation, sticky, parallax or collapsible
+   content; V4 containers have none of them. Widgets keep their own animations.
+7. **Off-canvas sidebar:** `wd-atomic-off-canvas` with `wd-atomic-sidebar` and `wd-atomic-off-canvas-content`;
+   open it on mobile with `wd_builder_off_canvas_column_btn`.
+8. **Deprecated widgets:** not `wd_banner_carousel`, `wd_infobox_carousel` or `wd_tabs`; use
+   `wd_nested_carousel` with `wd_banner`, and `wd_tabs_nested`.
+9. **No global classes, and do not create variables.** Use the theme variables instead of fixed values:
+   `theme-primary-color`, `theme-alternative-color` and `theme-border-radius`. Theme Settings writes them on save;
+   never change them in Elementor. In V4 styles: `{"$$type":"global-color-variable","value":"<id>"}` for colors and
+   `{"$$type":"woodmart-size-variable","value":"<id>"}` for the radius (ids are `e-gv-…`; read them from an existing
+   element or ask the user). In V3 widgets the colors are global colors:
+   `"__globals__":{"<color control>":"globals/colors?id=v4-theme-primary-color"}` (or `v4-theme-alternative-color`).
 
 ### Elementor site without the WoodMart demo import
 
