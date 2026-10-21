@@ -25,7 +25,7 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Header, logo, header elements (desktop and mobile columns hold separate elements, e.g. two logos) | `list-headers` → `get-header` → `describe-header-element` → `edit-header` |
 | New header; where a header shows (site default, post types, single pages) | `create-header`; `set-header-assignment` |
 | Menu items, mega menu (also the menu a header shows) | `list-menus` → `get-menu` → `describe-menu-item-settings` → `edit-menu`; `create-menu` |
-| Media | `list-media` first; `upload-media` (a URL) or `request-media-upload` (local files); `update-media` for alt/title |
+| Media | `list-media` first (search by file name, URL or ID); `upload-media` (a URL) or `request-media-upload` (local files); `update-media` for alt/title; `edit-image` to crop, rotate, flip, scale or restore the original; `regenerate-media` after the image sizes change |
 | Categories, tags, attributes, swatches (a value becomes a swatch through its term's `swatch_text` / `swatch_color` / `swatch_image_id`) | `list-taxonomies` → `list-terms` → `create-term` / `update-term` / `set-object-terms`; `create-product-attribute` / `update-product-attribute` (name, slug, swatch style) |
 | Products (a variable product's prices live in its variations) | `create-simple-product` / `create-variable-product`; `get-product` → `update-product` (WooCommerce fields); `get-product-woodmart-fields` → `update-product-woodmart-fields` (WoodMart fields: size guide, 360, videos, bundles, variation images); `update-product-variations` (prices, stock, new variations) |
 | Product reviews (read only) | `get-product-reviews` |
