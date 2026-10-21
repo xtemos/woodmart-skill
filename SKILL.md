@@ -268,6 +268,7 @@ whole site: tell the user what will change and get a yes first.
 4. Pages: the blog page with `update-site-settings` (`show_on_front` `page`, `page_for_posts`); the shop page with
    `update-store-settings` (group `products`, `woocommerce_shop_page_id`); registration on My account with
    `update-store-settings` (group `account`, `woocommerce_enable_myaccount_registration`); cart, checkout and my
-   account without sidebar with `update-metaboxes` (`_woodmart_main_layout` `full-width`).
+   account without sidebar with `update-metaboxes` (`_woodmart_main_layout` `full-width`). If the site has no blog
+   page (or no home page for `show_on_front` `page`), ask the user whether to create it; do not pick another page.
 5. Ask the user to open wp-admin once: the theme then gives Elementor's new div and section blocks no padding.
    The import also removes the Uncategorized product category; MCP cannot delete it, so tell the user.
