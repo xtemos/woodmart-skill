@@ -20,7 +20,7 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Theme setting for the whole site | `list-theme-settings` → `get-theme-setting` → `update-theme-setting(s)` |
 | Theme setting only on some pages | preset: `list-theme-settings-presets` → `save-theme-settings-preset` → `update-theme-settings` with `preset_id` |
 | Back up Theme Settings before many changes; undo them | `create-theme-settings-backup`; later `list-theme-settings-backups` → `compare-theme-settings-backup` (what differs now) → `update-theme-settings` with the `backup_value` of the settings to restore |
-| Site title, tagline, language, home page and posts page | `get-site-settings` → `update-site-settings` |
+| Site title, tagline, language, home page and posts page; Settings → Media image sizes (then `regenerate-media`) | `get-site-settings` → `update-site-settings` |
 | Appearance → Customize (WooCommerce image sizes, store notice, catalog, additional CSS…) | `get-customizer-settings` → `update-customizer-settings` |
 | Header, logo, header elements (desktop and mobile columns hold separate elements, e.g. two logos) | `list-headers` → `get-header` → `describe-header-element` → `edit-header` |
 | New header; where a header shows (site default, post types, single pages) | `create-header`; `set-header-assignment` |
