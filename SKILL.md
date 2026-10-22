@@ -258,7 +258,10 @@ except the V4 off-canvas element. Style V4 containers with local `styles` (shape
 6. **Use a V3 `container` instead** when the wrapper needs a WoodMart animation, sticky, parallax or collapsible
    content; V4 containers have none of them. Widgets keep their own animations.
 7. **Off-canvas sidebar:** `wd-atomic-off-canvas` with `wd-atomic-sidebar` and `wd-atomic-off-canvas-content`;
-   open it on mobile with `wd_builder_off_canvas_column_btn`.
+   open it on mobile with `wd_builder_off_canvas_column_btn`. Put the sidebar widgets in the sidebar's e-flexbox.
+   V4 elements with a structure (tabs, accordion, off-canvas, background video) written without children get the
+   editor's structure, and their locked children are completed; `elementor-describe-element` shows it as
+   `default_children`. Then change texts by id.
 8. **Deprecated widgets:** not `wd_banner_carousel`, `wd_infobox_carousel` or `wd_tabs`; use
    `wd_nested_carousel` with `wd_banner`, and `wd_tabs_nested`.
 9. **No global classes; do not create or change variables** (Theme Settings writes the theme ones on save).
@@ -266,6 +269,19 @@ except the V4 off-canvas element. Style V4 containers with local `styles` (shape
    `{"$$type":"global-color-variable","value":"<e-gv id>"}` for colors, `{"$$type":"woodmart-size-variable","value":"<e-gv id>"}`
    for the radius; ids from `elementor-list-variables`. V3 widgets: `"__globals__":{"<color control>":"globals/colors?id=<v3_global_id>"}`.
    `elementor-get-settings` `editor` tells whether V4 is on.
+
+**Converting a V3 page to V4** (only when asked): write a draft copy, keep the original. Replace each V3 `container`
+with an `e-flexbox` (`e-grid` for a grid container) by the rules above: `flex_direction` → `flex-direction`,
+`flex_gap` → `gap`, padding, margin and background → styles, `_tablet` / `_mobile` values → tablet / mobile variants,
+`wd_section_stretch` → rule 4. Keep a V3 `container` where rule 6 applies, or for shape dividers or a YouTube
+background video. A child with a width and no mobile width gets `width` 100% (or a `column` parent) on mobile: V3 did
+it by itself. Elementor widgets with a V4 twin may move to it (heading → `e-heading`, text-editor → `e-paragraph`,
+button → `e-button`, image → `e-image`, divider → `e-divider`, nested tabs/accordion → `e-tabs`/`e-accordion`);
+carry their look over in styles: heading `line-height`, button padding and font size, divider spacing and color,
+tab and accordion colors (`e--selected` for the active tab). `wd_*` widgets and widgets without a twin stay V3. V4
+widgets inside a V3 `container` with a background overlay need `position: relative` and `z-index: 1`. Compare the
+copy with the original at desktop, tablet and mobile widths and list what did not carry over; without the front end,
+list the places you could not check.
 
 ### Elementor site without the WoodMart demo import
 
