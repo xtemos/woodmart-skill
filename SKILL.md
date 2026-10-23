@@ -185,12 +185,14 @@ neither the server nor the agent can.
 2. Ask the user to open the AI Block Queue page (`finalization_url`) and keep it open; it picks up ready
    batches by itself and shows a journal with Retry, Cancel and Copy error. Follow the response's
    `user_instruction`.
-3. Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`. `finalizer_online: false`
+3. Poll `gutenberg-get-pending-batch` until the batch is `finalized`, `failed` or `canceled` (`last_error` says
+   why a batch was canceled). `finalizer_online: false`
    means no AI Block Queue page asked for work in the last minute: remind the user to open it.
 
-- On `failed`, read `last_error` and the items' `validation_errors` (also in the journal), fix the change and
-  queue it again: a new change on the same target replaces the failed one.
-- On `conflicted`, re-read the target and repeat the edit against the current content.
+- On `failed`, check the items. An item `conflicted` means the target changed after it was queued: re-read the
+  target and repeat the edit against the current content. Otherwise read `last_error` and the items'
+  `validation_errors` (also in the journal) and fix the change. Either way queue it again: a new change on the
+  same target replaces the failed one.
 
 Only one active pending change may exist per target: a second one is refused until the first is finalized.
 Cancel an obsolete non-finalized batch with `gutenberg-delete-pending-batch` before queuing a replacement.
