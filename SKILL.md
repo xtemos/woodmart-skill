@@ -17,7 +17,7 @@ Read `get-ability-info` before the first call of each ability. The live descript
 | Find or list content of any type | `search-content` (`query`, `post_types`); each result has `builder` |
 | Title, slug, status, parent, excerpt, featured image, date, author | `update-content` |
 | Undo a content change, see older versions | `list-revisions` → `get-revision` (diff with now) → `restore-revision`; undo the restore with its `undo_revision_id` |
-| See a draft on the front end (browser tool, no login) | `create-preview-link` (page, post, product, portfolio; published content → its URL) |
+| See a draft on the front end (browser tool, no login) | `create-preview-link` (page, post, product, portfolio; HTML block, layout, popup, floating block as in the editor preview) |
 | Page/post/product/term options (page title, sidebar, header off, product layout…), popup and rule style fields | `get-metaboxes` → `update-metaboxes` |
 | Theme setting for the whole site | `list-theme-settings` → `get-theme-setting` → `update-theme-setting(s)` |
 | Theme setting only on some pages | preset: `list-theme-settings-presets` → `save-theme-settings-preset` → `update-theme-settings` with `preset_id` |
