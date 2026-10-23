@@ -62,7 +62,7 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 | Find a page, post, product, portfolio project, or HTML block | `woodmart/search-content` |
 | Create a page, post, portfolio project, or HTML block | `woodmart/create-content` |
 | Rename, publish, re-slug, or re-parent content | `woodmart/update-content` |
-| Read a target's block tree | `woodmart/gutenberg-get-content` |
+| Read a target's block tree | `woodmart/gutenberg-get-content` (a section's name is `attributes.metadata.name`) |
 | Change blocks in a non-empty target | `woodmart/gutenberg-edit-blocks` |
 | Fill an empty target or deliberately rebuild all of it | `woodmart/gutenberg-add-pending-change` |
 | Discover blocks and their attributes | `woodmart/gutenberg-list-blocks`, then `woodmart/gutenberg-describe-block` |
@@ -95,6 +95,17 @@ These rules are non-negotiable because violating them can silently lose content 
    invent, copy, reuse, or send one inside update `attributes`.
 6. Pass `expected_content_hash` from the latest `gutenberg-get-content` response when editing.
    On a conflict, re-read the target and rebuild the intended operations against the new tree.
+7. **Name every top-level section you add** in `attributes.metadata.name` (the List View name); do not rename
+   existing sections unless the user asks. If the user asks not to name or rename sections, do not, and leave
+   the `wd_ai_unnamed_sections` warning without action. English, Title Case,
+   1-3 words, e.g. Hero, Categories, Products, Banner, Features, About, Testimonials, Brands, Blog, Newsletter,
+   Call To Action, FAQ, Contact. The same kind of section gets the same name on every page. Name an inner block
+   only when it is a separate unit (a card, banner text: "Banner Content"), never a technical wrapper.
+   `gutenberg-get-content` returns the name in each block's `attributes.metadata.name`; find a section by it.
+   A `wd_ai_unnamed_sections` warning lists top-level sections without a name. Name sections before queuing; if
+   the batch is not finalized yet, cancel it with `gutenberg-delete-pending-batch` and queue the change again with
+   names. On a finalized page use a `gutenberg-edit-blocks` `update` of `attributes.metadata`; `metadata` is
+   replaced as a whole, so send the block's existing `metadata` keys plus `name`.
 
 If a deliberate full replacement might touch classic/freeform content outside registered
 blocks, first read with `include_raw_content: true`; `block_spec` otherwise cannot represent
