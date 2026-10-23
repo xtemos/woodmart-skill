@@ -144,7 +144,8 @@ Gutenberg abilities.
 6. Pass `expected_content_hash` from the latest `gutenberg-get-content` response when editing. On a
    conflict, re-read the target and rebuild the intended operations against the new tree.
 7. **Name every top-level section you add** in `attributes.metadata.name` (the List View name); do not rename
-   existing sections unless the user asks. English, Title Case,
+   existing sections unless the user asks. If the user asks not to name or rename sections, do not, and leave
+   the `wd_ai_unnamed_sections` warning without action. English, Title Case,
    1-3 words, e.g. Hero, Categories, Products, Banner, Features, About, Testimonials, Brands, Blog, Newsletter,
    Call To Action, FAQ, Contact. The same kind of section gets the same name on every page. Name an inner block
    only when it is a separate unit (a card, banner text: "Banner Content"), never a technical wrapper. Read a
@@ -260,7 +261,8 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    `elementor-replace-content`. A `wd_slider` widget takes the slider's slug; slide content is written with
    `save-slide` `elements`.
 7. **Name every top-level section you add** in `settings._title` (v3 `container`) or `editor_settings.title` (v4
-   `e-flexbox`, `e-div-block`); do not rename existing sections unless the user asks. English, Title Case, 1-3 words, e.g. Hero, Categories, Products, Banner, Features,
+   `e-flexbox`, `e-div-block`); do not rename existing sections unless the user asks. If the user asks not to name
+   or rename sections, do not, and leave the `wd_ai_unnamed_sections` warning without action. English, Title Case, 1-3 words, e.g. Hero, Categories, Products, Banner, Features,
    About, Testimonials, Brands, Blog, Newsletter, Call To Action, FAQ, Contact. The same kind of section gets the
    same name on every page. Name an inner container only when it is a separate unit (a card, banner text:
    "Banner Content"), never a technical wrapper. Read a page with `elementor-get-content` `max_depth: 1` first
