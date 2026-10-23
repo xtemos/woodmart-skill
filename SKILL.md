@@ -170,6 +170,10 @@ attribute:
    data-resolver hints. Do not invent block attributes or site-specific ids.
 4. For layouts, pass the relevant type's `block_categories` from `list-layout-types` to
    `gutenberg-list-blocks`.
+5. `wd/testimonial`, `wd/team-member` and `wd/timeline-item` keep their content in locked inner blocks that
+   `gutenberg-describe-block` does not show: copy the structure from a library template
+   (`gutenberg-search-templates`, then `gutenberg-get-template`) or a page that has the block, and change
+   only the texts.
 5. Prefer a library template when it matches the requested section or page. Use its returned `block_spec`;
    demo images are localized during finalization.
 
