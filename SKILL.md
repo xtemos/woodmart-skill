@@ -100,6 +100,14 @@ If a deliberate full replacement might touch classic/freeform content outside re
 blocks, first read with `include_raw_content: true`; `block_spec` otherwise cannot represent
 that content. Do not use full replacement as a workaround for this limitation.
 
+This server edits block (Gutenberg) content only. Pages built with Elementor or WPBakery, and
+pages still holding classic-editor HTML (`gutenberg-edit-blocks` refuses them with
+`wd_ai_content_outside_blocks`), are out of scope for block edits: tell the user and replace such
+a page only when the user asks for a full replacement. An Elementor or WPBakery page keeps
+showing its builder content after a block replacement until it is switched back to the
+WordPress editor; say so. Theme settings, layouts and their conditions, the header logo and post
+metadata work the same on every page builder.
+
 ### Choosing the write path
 
 ```text
@@ -146,12 +154,17 @@ the block queue.
 2. Call `gutenberg-enable-finalization` when the response says the batch is still a draft.
    `create-content` or `create-layout` with `block_spec` already marks its batch ready, so do not
    enable it again.
-3. Poll `gutenberg-get-pending-batch` until `finalized`, `failed`, or `conflicted`.
-4. On `failed`, read `last_error` and the items' `validation_errors`, fix the change and queue it again.
-5. On `conflicted`, re-read the target and repeat the edit against the current content.
+3. Poll `gutenberg-get-pending-batch` until the batch is `finalized`, `failed` or `canceled`
+   (`last_error` says why a batch was canceled).
+4. On `failed`, check the items. An item `conflicted` means the target changed after it was
+   queued: re-read the target and queue the edit again against the current content. Otherwise
+   read `last_error` and the items' `validation_errors`, fix the change and queue it again. The
+   new change replaces the failed one; no need to delete the failed batch first.
+5. A batch left `running` by a closed queue page is picked up again after 3 minutes while the
+   page is open. A target moved to the Trash or deleted cancels its batch.
 
-Only one active pending change may exist per target. Cancel an obsolete non-finalized batch
-with `gutenberg-delete-pending-batch` before queuing a replacement.
+Only one active pending change may exist per target. Cancel an obsolete batch that is not
+finalized or failed with `gutenberg-delete-pending-batch` before queuing a replacement.
 
 ## Immediate writes and reporting
 
@@ -175,6 +188,10 @@ with `gutenberg-delete-pending-batch` before queuing a replacement.
   `writable`, `value_format`, `options`, `current_value`, and `has_preset_overrides`.
 - `update-theme-setting` writes the base layer. A preset override may still determine the
   visible value; report that instead of retrying blindly.
+- Typography and idle/hover colors merge: send only the keys or states that change; `null`
+  removes one. A typography list changes fonts by position and keeps the others; `null` at a
+  position removes that font. Values are checked against the descriptor (listed options,
+  range bounds, color formats), and JavaScript editors are read-only.
 - `replace-header-logo` requires an existing media-library image `attachment_id` and updates
   every saved header. Read the per-header statuses and `totals`; report skipped or failed
   headers rather than claiming blanket success.
