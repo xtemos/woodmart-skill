@@ -117,7 +117,7 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 | Intent | Start with |
 |--------|------------|
 | Create a page, post, portfolio project, HTML block, popup, floating block, product tab, label or size guide | `gutenberg-create-content` |
-| Read a target's block tree | `gutenberg-get-content` |
+| Read a target's block tree | `gutenberg-get-content` (`format: "compact"` with `max_depth: 1` first) |
 | Change blocks in a non-empty target | `gutenberg-edit-blocks` |
 | Fill an empty target or deliberately rebuild all of it | `gutenberg-replace-content` |
 | Discover blocks and their attributes | `gutenberg-list-blocks`, then `gutenberg-describe-block` |
@@ -143,6 +143,17 @@ Gutenberg abilities.
    send one inside update `attributes`.
 6. Pass `expected_content_hash` from the latest `gutenberg-get-content` response when editing. On a
    conflict, re-read the target and rebuild the intended operations against the new tree.
+7. **Name every top-level section you add** in `attributes.metadata.name` (the List View name); do not rename
+   existing sections unless the user asks. English, Title Case,
+   1-3 words, e.g. Hero, Categories, Products, Banner, Features, About, Testimonials, Brands, Blog, Newsletter,
+   Call To Action, FAQ, Contact. The same kind of section gets the same name on every page. Name an inner block
+   only when it is a separate unit (a card, banner text: "Banner Content"), never a technical wrapper. Read a
+   page with `gutenberg-get-content` `format: "compact"` and `max_depth: 1` first (each block shows its `title`),
+   then fetch only the sections you need with `block_ids`. A `wd_ai_unnamed_sections` warning lists top-level
+   sections without a name. Name sections before queuing; if the batch is not finalized yet, cancel it with
+   `gutenberg-delete-pending-batch` and queue the change again with names. On a finalized page use a
+   `gutenberg-edit-blocks` `update` of `attributes.metadata`; `metadata` is replaced as a whole, so read the block
+   in full (`gutenberg-get-content` with `block_ids`, default format) and send its existing keys plus `name`.
 
 If a deliberate full replacement might touch classic/freeform content outside registered blocks, first read
 with `include_raw_content: true`; `block_spec` otherwise cannot represent that content. Do not use full
@@ -209,7 +220,7 @@ A portfolio project is content of post type `portfolio` (needs the Portfolio the
 | Intent | Start with |
 |--------|------------|
 | Create a page, post, portfolio project, HTML block, popup, floating block or product tab | `elementor-create-content` |
-| Read an element tree | `elementor-get-content` (skeleton; `element_id` for one element in full) |
+| Read an element tree | `elementor-get-content` (skeleton with `max_depth: 1` first; `element_id` for one element in full) |
 | Discover elements and their controls | `elementor-list-elements` → `elementor-describe-element` |
 | Change part of a page | `elementor-edit-elements` (operations + `expected_content_hash`) |
 | Fill an empty target or deliberately rebuild all of it | `elementor-replace-content` |
@@ -248,6 +259,15 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    `set-display-conditions`. A layout made with `create-layout` without `predefined_name` starts empty: fill it with
    `elementor-replace-content`. A `wd_slider` widget takes the slider's slug; slide content is written with
    `save-slide` `elements`.
+7. **Name every top-level section you add** in `settings._title` (v3 `container`) or `editor_settings.title` (v4
+   `e-flexbox`, `e-div-block`); do not rename existing sections unless the user asks. English, Title Case, 1-3 words, e.g. Hero, Categories, Products, Banner, Features,
+   About, Testimonials, Brands, Blog, Newsletter, Call To Action, FAQ, Contact. The same kind of section gets the
+   same name on every page. Name an inner container only when it is a separate unit (a card, banner text:
+   "Banner Content"), never a technical wrapper. Read a page with `elementor-get-content` `max_depth: 1` first
+   (each node shows its `title`), then fetch the section you need with `element_id`. A `wd_ai_unnamed_sections`
+   warning lists top-level sections without a name: name them with an `elementor-edit-elements` `update`, v3
+   `{"op":"update","elementId":"…","settings":{"_title":"Hero"}}`, v4
+   `{"op":"update","elementId":"…","editor_settings":{"title":"Hero"}}` (only `title`; `null` removes it).
 
 ### Elementor V4 containers
 
