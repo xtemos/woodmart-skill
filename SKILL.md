@@ -160,6 +160,14 @@ If a deliberate full replacement might touch classic/freeform content outside re
 with `include_raw_content: true`; `block_spec` otherwise cannot represent that content. Do not use full
 replacement as a workaround for this limitation.
 
+**qTranslate-XT pages** are the exception. All languages share one `post_content`, separated by `[:ua]`, `[:ru]`,
+`[:]` tags between blocks. `gutenberg-edit-blocks` rejects such a page (`wd_ai_content_outside_blocks`), and
+`block_spec` shows the blocks of every language without the tags. Read with `include_raw_content: true` to see which
+blocks belong to which language. Change the page only with `gutenberg-replace-content` and `allow_raw_html: true`,
+sending the whole page in every language. Send each tag as its own top-level block
+`{"name": "core/freeform", "attributes": {"content": "[:ua]"}}`, and close the last language with `[:]`. Keep
+the blocks you do not change as they are. Without the tags, all languages merge into one.
+
 For a text edit, describe the block if the content attribute is not already known, then update only that
 attribute:
 
