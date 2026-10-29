@@ -99,10 +99,18 @@ These rules are non-negotiable because violating them can silently lose content 
    On a conflict, re-read the target and rebuild the intended operations against the new tree.
 7. **Name every top-level section you add** in `attributes.metadata.name` (the List View name); do not rename
    existing sections unless the user asks. If the user asks not to name or rename sections, do not, and leave
-   the `wd_ai_unnamed_sections` warning without action. English, Title Case,
-   1-3 words, e.g. Hero, Categories, Products, Banner, Features, About, Testimonials, Brands, Blog, Newsletter,
-   Call To Action, FAQ, Contact. The same kind of section gets the same name on every page. Name an inner block
-   only when it is a separate unit (a card, banner text: "Banner Content"), never a technical wrapper.
+   the `wd_ai_unnamed_sections` warning without action. English, sentence case (only the first word capitalised),
+   the purpose (1-3 words) plus the block's role, so a section is never confused with an element:
+   `wd/section` (full-width background) → "Full width <purpose> section", `wd/row` → "<Purpose> row",
+   `wd/container` → "<Purpose> container", any other top-level block that holds other blocks (slider, carousel, tabs, accordion, …) → "<Purpose>
+   <block type>": `wd/slider` → "<Purpose> slider", `wd/carousel` → "<Purpose> carousel", `wd/tabs` → "<Purpose>
+   tabs", `wd/accordion` → "<Purpose> accordion" (Gallery tabs, Contact accordion). E.g. Hero row, Hero slider, Categories carousel, Products container, Full width products section,
+   Categories container, Features row, About row, Testimonials container, Brands container, Blog container,
+   Newsletter row, Call to action row, FAQ row, Contact row. Purposes: Hero, Categories, Products, Banner, Features,
+   About, Testimonials, Brands, Blog, Newsletter, Call to action, FAQ, Contact. The same kind of section gets the same
+   name on every page; rename it when its block changes. Only the top level gets a name: do not name inner blocks;
+   keep only the names the theme sets by itself (`wd/cover` "Banner content", `wd/infobox` "Infobox content",
+   `wd/toggle` "Toggle header").
    `gutenberg-get-content` returns the name in each block's `attributes.metadata.name`; find a section by it.
    A `wd_ai_unnamed_sections` warning lists top-level sections without a name. Name sections before queuing; if
    the batch is not finalized yet, cancel it with `gutenberg-delete-pending-batch` and queue the change again with
