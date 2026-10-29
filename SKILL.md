@@ -39,7 +39,9 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    WoodMart template's values.
 2. **Inherit globals.** Fonts, colors and rounding come from Theme Settings. Use theme color variables
    (`var(--wd-primary-color)`, or the block's color-variable attribute) instead of hex copies; set a value
-   only where it differs from the global one.
+   only where it differs from the global one. Page background: the site's main color in every Theme Settings
+   page background (single product included, no preset just to recolor one page); a section gets its own
+   background only where it differs, never to repeat the page color.
 3. **One spacing system.** Space sections with the bottom margin of the upper one; padding only on blocks
    with a background or border; space items with the container gap.
 4. **Theme gap.** The theme leaves 40px between the content and both the header and the footer. For a page
