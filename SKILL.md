@@ -1,13 +1,13 @@
 ---
 name: woodmart-mcp
-description: "Use for WoodMart site work through the wood MCP abilities (woodmart/*): finding or creating content, editing Gutenberg blocks, changing theme settings or header logos, and creating or assigning WoodMart layouts. Covers the queued block-finalization workflow and the safety rules that coordinate multiple abilities."
+description: "Use for WoodMart site work through the woodmart MCP abilities (woodmart/*): finding or creating content, editing Gutenberg blocks, changing theme settings or header logos, and creating or assigning WoodMart layouts. Covers the queued block-finalization workflow and the safety rules that coordinate multiple abilities."
 ---
 
 # Working with WoodMart via MCP abilities
 
 ## Use live ability documentation
 
-Everything runs through the wood MCP adapter. Use `mcp-adapter-discover-abilities` for
+Everything runs through the woodmart MCP adapter. Use `mcp-adapter-discover-abilities` for
 the current ability list and `mcp-adapter-get-ability-info` before the first use of a write
 ability, or whenever its parameters are uncertain. Treat the live description, input schema,
 response fields, warnings, and `user_instruction` as authoritative; do not rely on remembered
@@ -15,7 +15,7 @@ parameter lists.
 
 Use `mcp-adapter-execute-ability` with `ability_name` and `parameters` to execute an ability.
 
-If the wood MCP is unavailable or every call fails, stop and tell the user the server name and error.
+If the woodmart MCP is unavailable or every call fails, stop and tell the user the server name and error.
 Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 
 ## Rules for every task
@@ -103,25 +103,7 @@ These rules are non-negotiable because violating them can silently lose content 
    invent, copy, reuse, or send one inside update `attributes`.
 6. Pass `expected_content_hash` from the latest `gutenberg-get-content` response when editing.
    On a conflict, re-read the target and rebuild the intended operations against the new tree.
-7. **Name every top-level section you add** in `attributes.metadata.name` (the List View name); do not rename
-   existing sections unless the user asks. If the user asks not to name or rename sections, do not, and leave
-   the `wd_ai_unnamed_sections` warning without action. English, sentence case (only the first word capitalised),
-   the purpose (1-3 words) plus the block's role, so a section is never confused with an element:
-   `wd/section` (full-width background) → "Full width <purpose> section", `wd/row` → "<Purpose> row",
-   `wd/container` → "<Purpose> container", any other top-level block that holds other blocks (slider, carousel, tabs, accordion, …) → "<Purpose>
-   <block type>": `wd/slider` → "<Purpose> slider", `wd/carousel` → "<Purpose> carousel", `wd/tabs` → "<Purpose>
-   tabs", `wd/accordion` → "<Purpose> accordion" (Gallery tabs, Contact accordion). E.g. Hero row, Hero slider, Categories carousel, Products container, Full width products section,
-   Categories container, Features row, About row, Testimonials container, Brands container, Blog container,
-   Newsletter row, Call to action row, FAQ row, Contact row. Purposes: Hero, Categories, Products, Banner, Features,
-   About, Testimonials, Brands, Blog, Newsletter, Call to action, FAQ, Contact. The same kind of section gets the same
-   name on every page; rename it when its block changes. Only the top level gets a name: do not name inner blocks;
-   keep only the names the theme sets by itself (`wd/cover` "Banner content", `wd/infobox` "Infobox content",
-   `wd/toggle` "Toggle header").
-   `gutenberg-get-content` returns the name in each block's `attributes.metadata.name`; find a section by it.
-   A `wd_ai_unnamed_sections` warning lists top-level sections without a name. Name sections before queuing; if
-   the batch is not finalized yet, cancel it with `gutenberg-delete-pending-batch` and queue the change again with
-   names. On a finalized page use a `gutenberg-edit-blocks` `update` of `attributes.metadata`; `metadata` is
-   replaced as a whole, so send the block's existing `metadata` keys plus `name`.
+7. Name every top-level section you add (see "Section names").
 
 If a deliberate full replacement might touch classic/freeform content outside registered
 blocks, first read with `include_raw_content: true`; `block_spec` otherwise cannot represent
@@ -144,28 +126,24 @@ showing its builder content after a block replacement until it is switched back 
 WordPress editor; say so. Theme settings, layouts and their conditions, the header logo and post
 metadata work the same on every page builder.
 
-### Choosing the write path
+### Section names
 
-```text
-Existing blocks?
-├── no  → create-content with block_spec, or gutenberg-add-pending-change
-└── yes → Explicit full rebuild requested?
-          ├── no  → gutenberg-edit-blocks
-          └── yes → gutenberg-add-pending-change
-```
+Name every top-level section you add in `attributes.metadata.name` (the List View name; `gutenberg-get-content`
+returns it, so find a section by it); do not rename existing ones unless the user asks. If the user asks not to name
+or rename sections, do not, and leave the `wd_ai_unnamed_sections` warning without action.
 
-For a text edit, describe the block if the content attribute is not already known, then update
-only that attribute:
+A name is English, sentence case (only the first word capitalised): the purpose (1-3 words: Hero, Categories, Products,
+Banner, Features, About, Testimonials, Brands, Blog, Newsletter, Call to action, FAQ, Contact) plus the block's role, so
+a section is never confused with an element: `wd/section` (full-width background) → "Full width <purpose> section",
+`wd/row` → "<Purpose> row", `wd/container` → "<Purpose> container", any other top-level block that holds blocks →
+"<Purpose> <block type>" (Hero slider, Categories carousel, Gallery tabs, Contact accordion). The same kind of section
+gets the same name on every page; rename it when its block changes. Name only the top level, and keep the names the
+theme sets by itself (`wd/cover` "Banner content", `wd/infobox` "Infobox content", `wd/toggle` "Toggle header").
 
-```json
-{
-  "target_id": 123,
-  "expected_content_hash": "...",
-  "operations": [
-    { "op": "update", "blockId": "a1b2", "attributes": { "content": "New heading" } }
-  ]
-}
-```
+`wd_ai_unnamed_sections` lists top-level sections without a name. Name sections before queuing; if the batch is not
+finalized yet, cancel it with `gutenberg-delete-pending-batch` and queue the change again with names. On a finalized
+page use a `gutenberg-edit-blocks` `update` of `attributes.metadata`; `metadata` is replaced as a whole, so send the
+block's existing `metadata` keys plus `name`.
 
 ## Authoring from scratch
 
@@ -180,7 +158,7 @@ only that attribute:
    blocks that `gutenberg-describe-block` does not show: copy the structure from a library template
    (`gutenberg-search-templates`, then `gutenberg-get-template`) or a page that has the block, and
    change only the texts.
-5. Prefer a library template when it matches the requested section or page. Use its returned
+6. Prefer a library template when it matches the requested section or page. Use its returned
    `block_spec`; demo images are localized during finalization.
 
 ## Finalization
