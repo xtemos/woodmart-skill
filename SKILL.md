@@ -33,6 +33,8 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    - Remove with `removeAttributes`, never `""` or `0`.
    - After writing, compare `getComputedStyle` with and without each attribute you set, at desktop, tablet and
      mobile. No change → remove it. A change → keep it, even when it looks like a default (e.g. `align: start`).
+     This check finds duplicates too: an attribute that repeats what the block's predefined style (a style or
+     design option, a theme class) already gives changes nothing, so remove it.
 3. **Report what really happened.** Relay `warnings` (a moved URL, a preset override, a setting with no
    effect). List what you could not do as "where → field → value" for the user. Re-read after writing. Check
    visible changes on the front end at desktop, tablet and mobile widths when you can open the site;
