@@ -25,8 +25,14 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    with other texts is still the better start: insert it and change only the texts (its demo images are
    copied to the media library). Prefer WoodMart blocks (`wd/*`) over core ones when both fit.
 2. **Read, then write only the difference.** Read the current state right before a write and send only what
-   changes, with the hash that read returned. Do not send values equal to the defaults. Where a description
-   says a list is complete or replaces the old one (layout conditions), send every entry that must remain.
+   changes, with the hash that read returned. Where a description says a list is complete or replaces the old
+   one (layout conditions), send every entry that must remain.
+   **Never store a default:**
+   - Before writing, skip any value equal to the block's `default` or to what the theme and Theme Settings
+     already give.
+   - Remove with `removeAttributes`, never `""` or `0`.
+   - After writing, compare `getComputedStyle` with and without each attribute you set, at desktop, tablet and
+     mobile. No change → remove it. A change → keep it, even when it looks like a default (e.g. `align: start`).
 3. **Report what really happened.** Relay `warnings` (a moved URL, a preset override, a setting with no
    effect). List what you could not do as "where → field → value" for the user. Re-read after writing. Check
    visible changes on the front end at desktop, tablet and mobile widths when you can open the site;
