@@ -65,6 +65,8 @@ Read `get-ability-info` before the first call of each ability. The live descript
    - After writing, compare `getComputedStyle` with and without each key you set, at desktop, tablet and
      mobile. No change → remove the key. A change → keep it, even when it looks like a default (e.g.
      `align: start`).
+     This check finds duplicates too: a key that repeats what the element's predefined style (a style or design
+     option, a theme class, the kit) already gives changes nothing, so remove it.
 4. **Check before saving.** When an ability has `validate_only`, run it first, then the same call without it.
    Fix every reported error; never resend an unchanged payload. Abilities without `validate_only` (e.g.
    `create-term`, `upload-media`) apply at once and cannot be undone through MCP: finish every lookup and get
