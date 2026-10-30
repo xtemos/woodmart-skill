@@ -55,9 +55,16 @@ Read `get-ability-info` before the first call of each ability. The live descript
    images are copied to the media library). Prefer WoodMart elements (`wd/*` blocks, `wd_*` widgets) over core
    ones when both fit.
 3. **Read, then write only the difference.** Read the current state right before a write and send only what
-   changes, with the hash that read returned. Do not send values equal to the defaults. Where a description
-   says a list is complete or replaces the old one (display and layout conditions, `set-object-terms`
-   replace, product `category_ids`), send every entry that must remain.
+   changes, with the hash that read returned. Where a description says a list is complete or replaces the old
+   one (display and layout conditions, `set-object-terms` replace, product `category_ids`), send every entry
+   that must remain.
+   **Never store a default:**
+   - Before writing, skip any value equal to the control's `default` or to what the theme, kit or Theme
+     Settings already give.
+   - Remove with `null` (Elementor) or `removeAttributes` (Gutenberg), never `""` or `0`.
+   - After writing, compare `getComputedStyle` with and without each key you set, at desktop, tablet and
+     mobile. No change → remove the key. A change → keep it, even when it looks like a default (e.g.
+     `align: start`).
 4. **Check before saving.** When an ability has `validate_only`, run it first, then the same call without it.
    Fix every reported error; never resend an unchanged payload. Abilities without `validate_only` (e.g.
    `create-term`, `upload-media`) apply at once and cannot be undone through MCP: finish every lookup and get
