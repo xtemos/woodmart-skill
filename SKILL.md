@@ -121,6 +121,37 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
   Gutenberg section); a size guide's table is the `woodmart_sguide` field in `update-metaboxes`.
 - There are no WPBakery abilities: never edit a WPBakery page with the Gutenberg or Elementor ones; tell the user.
 
+## Section names
+
+Name every top-level section you add; do not rename existing ones unless the user asks. If the user asks not to name
+or rename sections, do not, and leave the `wd_ai_unnamed_sections` warning without action. Read a page at the top level
+first (`gutenberg-get-content` `format: "compact"` with `max_depth: 1`, `elementor-get-content` `max_depth: 1`; each
+node shows its `title`), then fetch only the section you need (`block_ids` / `element_id`).
+
+A name is English, sentence case (only the first word capitalised): the purpose (1-3 words: Hero, Categories, Products,
+Banner, Features, About, Testimonials, Brands, Blog, Newsletter, Call to action, FAQ, Contact) plus the element's role,
+so a section is never confused with an element. The same kind of section gets the same name on every page; rename it
+when its block or layout changes. Name only the top level, and keep the names the theme sets by itself.
+
+- **Gutenberg**, `attributes.metadata.name`: `wd/section` (full-width background) → "Full width <purpose> section",
+  `wd/row` → "<Purpose> row", `wd/container` → "<Purpose> container", any other top-level block that holds blocks →
+  "<Purpose> <block type>" (Hero slider, Categories carousel, Gallery tabs, Contact accordion). Theme names:
+  `wd/cover` "Banner content", `wd/infobox` "Infobox content", `wd/toggle` "Toggle header".
+- **Elementor**, v3 `container` `settings._title`, v4 `e-flexbox` / `e-div-block` `editor_settings.title` (only
+  `title`; `null` removes it). Elementor has no row or section: a container stretched to full width with a background
+  (`wd_section_stretch` / v4 `wd_stretch` stretch) → "Full width <purpose> container", any other v3 container →
+  "<Purpose> container", `e-flexbox` → "<Purpose> flexbox", `e-div-block` → "<Purpose> div block", `e-grid` →
+  "<Purpose> grid". A container holding a slider is still named by its own type (Hero container). Theme names:
+  `wd_toggle` "Toggle content", `wd_nested_carousel` "Slide #N", `wd_tabs_nested` "Tab #N".
+
+`wd_ai_unnamed_sections` lists top-level sections without a name:
+- Gutenberg: name sections before queuing. If the batch is not finalized yet, cancel it with
+  `gutenberg-delete-pending-batch` and queue the change again with names. On a finalized page use a
+  `gutenberg-edit-blocks` `update` of `attributes.metadata`; `metadata` is replaced as a whole, so read the block in
+  full (`gutenberg-get-content` with `block_ids`, default format) and send its existing keys plus `name`.
+- Elementor: `elementor-edit-elements` `update`, v3 `{"op":"update","elementId":"…","settings":{"_title":"Hero container"}}`,
+  v4 `{"op":"update","elementId":"…","editor_settings":{"title":"Hero flexbox"}}`.
+
 ## Gutenberg
 
 | Intent | Start with |
@@ -152,26 +183,7 @@ Gutenberg abilities.
    send one inside update `attributes`.
 6. Pass `expected_content_hash` from the latest `gutenberg-get-content` response when editing. On a
    conflict, re-read the target and rebuild the intended operations against the new tree.
-7. **Name every top-level section you add** in `attributes.metadata.name` (the List View name); do not rename
-   existing sections unless the user asks. If the user asks not to name or rename sections, do not, and leave
-   the `wd_ai_unnamed_sections` warning without action. English, sentence case (only the first word capitalised),
-   the purpose (1-3 words) plus the block's role, so a section is never confused with an element:
-   `wd/section` (full-width background) → "Full width <purpose> section", `wd/row` → "<Purpose> row",
-   `wd/container` → "<Purpose> container", any other top-level block that holds other blocks (slider, carousel, tabs, accordion, …) → "<Purpose>
-   <block type>": `wd/slider` → "<Purpose> slider", `wd/carousel` → "<Purpose> carousel", `wd/tabs` → "<Purpose>
-   tabs", `wd/accordion` → "<Purpose> accordion" (Gallery tabs, Contact accordion). E.g. Hero row, Hero slider, Categories carousel, Products container, Full width products section,
-   Categories container, Features row, About row, Testimonials container, Brands container, Blog container,
-   Newsletter row, Call to action row, FAQ row, Contact row. Purposes: Hero, Categories, Products, Banner, Features,
-   About, Testimonials, Brands, Blog, Newsletter, Call to action, FAQ, Contact. The same kind of section gets the same
-   name on every page; rename it when its block changes. Only the top level gets a name: do not name inner blocks;
-   keep only the names the theme sets by itself (`wd/cover` "Banner content", `wd/infobox` "Infobox content",
-   `wd/toggle` "Toggle header"). Read a
-   page with `gutenberg-get-content` `format: "compact"` and `max_depth: 1` first (each block shows its `title`),
-   then fetch only the sections you need with `block_ids`. A `wd_ai_unnamed_sections` warning lists top-level
-   sections without a name. Name sections before queuing; if the batch is not finalized yet, cancel it with
-   `gutenberg-delete-pending-batch` and queue the change again with names. On a finalized page use a
-   `gutenberg-edit-blocks` `update` of `attributes.metadata`; `metadata` is replaced as a whole, so read the block
-   in full (`gutenberg-get-content` with `block_ids`, default format) and send its existing keys plus `name`.
+7. Name every top-level section you add (see "Section names").
 
 If a deliberate full replacement might touch classic/freeform content outside registered blocks, first read
 with `include_raw_content: true`; `block_spec` otherwise cannot represent that content. Do not use full
@@ -184,19 +196,6 @@ blocks belong to which language. Change the page only with `gutenberg-replace-co
 sending the whole page in every language. Send each tag as its own top-level block
 `{"name": "core/freeform", "attributes": {"content": "[:ua]"}}`, and close the last language with `[:]`. Keep
 the blocks you do not change as they are. Without the tags, all languages merge into one.
-
-For a text edit, describe the block if the content attribute is not already known, then update only that
-attribute:
-
-```json
-{
-  "target_id": 123,
-  "expected_content_hash": "...",
-  "operations": [
-    { "op": "update", "blockId": "a1b2", "attributes": { "content": "New heading" } }
-  ]
-}
-```
 
 ### Authoring from scratch
 
@@ -211,7 +210,7 @@ attribute:
    `gutenberg-describe-block` does not show: copy the structure from a library template
    (`gutenberg-search-templates`, then `gutenberg-get-template`) or a page that has the block, and change
    only the texts.
-5. Prefer a library template when it matches the requested section or page. Use its returned `block_spec`;
+6. Prefer a library template when it matches the requested section or page. Use its returned `block_spec`;
    demo images are localized during finalization.
 
 ### Finalization
@@ -277,32 +276,13 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    Copy the shape of a value from the control's `default` in `describe-element` (e.g. `padding`:
    `{"unit":"px","top":"0","right":"0","bottom":"35","left":"0","isLinked":false}`).
 5. **Write tiny.** Edit only the elements and keys that change, by `elementId`. Omit `id` on new elements.
-   Every `elementor-edit-elements` operation needs `op`: `{"op":"update","elementId":"abc1234","settings":{…}}`,
-   `{"op":"insert","element":{…},"position":"last-child","anchor":"<parent id>"}`, `{"op":"delete","elementId":"…"}`,
-   `{"op":"move","elementId":"…","position":"after","anchor":"…"}`. `elementor-get-content` takes one `element_id`
-   (a string, not a list): call it once per element.
+   Every `elementor-edit-elements` operation needs `op` (shapes in its description). `elementor-get-content`
+   takes one `element_id` (a string, not a list): call it once per element.
 6. Popup, floating block and product tab display conditions are not document settings: use
    `set-display-conditions`. A layout made with `create-layout` without `predefined_name` starts empty: fill it with
    `elementor-replace-content`. A `wd_slider` widget takes the slider's slug; slide content is written with
    `save-slide` `elements`.
-7. **Name every top-level section you add** in `settings._title` (v3 `container`) or `editor_settings.title` (v4
-   `e-flexbox`, `e-div-block`); do not rename existing sections unless the user asks. If the user asks not to name
-   or rename sections, do not, and leave the `wd_ai_unnamed_sections` warning without action. English, sentence case
-   (only the first word capitalised), the purpose (1-3 words) plus the Elementor element type as the Navigator shows
-   it (Elementor has no row or section): a container stretched to full width with a background (`wd_section_stretch`
-   stretch / v4 `wd_stretch` stretch) → "Full width <purpose> container"; any other v3 container, flex or grid
-   layout → "<Purpose> container"; v4 `e-flexbox` →
-   "<Purpose> flexbox", `e-div-block` → "<Purpose> div block", `e-grid` → "<Purpose> grid". Only these can be top
-   level in Elementor, so a container holding a slider or carousel is named by its own type (Hero container). E.g.
-   Hero container, Categories container, Features container, Full width products container, About container, Newsletter
-   flexbox. Purposes: Hero, Categories, Products, Banner, Features,
-   About, Testimonials, Brands, Blog, Newsletter, Call to action, FAQ, Contact. The same kind of section gets the
-   same name on every page; rename it when its layout changes. Only the top level gets a name: do not name inner containers;
-   keep the theme defaults (`wd_toggle` "Toggle content", `wd_nested_carousel` "Slide #N", `wd_tabs_nested` "Tab #N"). Read a page with `elementor-get-content` `max_depth: 1` first
-   (each node shows its `title`), then fetch the section you need with `element_id`. A `wd_ai_unnamed_sections`
-   warning lists top-level sections without a name: name them with an `elementor-edit-elements` `update`, v3
-   `{"op":"update","elementId":"…","settings":{"_title":"Hero container"}}`, v4
-   `{"op":"update","elementId":"…","editor_settings":{"title":"Hero flexbox"}}` (only `title`; `null` removes it).
+7. Name every top-level section you add (see "Section names").
 
 ### Elementor V4 containers
 
