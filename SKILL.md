@@ -57,7 +57,8 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    `margin-bottom: -40` on the last one. Otherwise leave the gap alone.
 5. **No wrapper without a reason** (a background, a column, sticky, its own responsive behavior).
 6. **Responsive.** Reduce large headings and spacing on tablet and mobile; 4+ columns become 2 on tablet and
-   1 on mobile (or a carousel when there are many items). A fixed px width needs `100%` on tablet. No `calc()`,
+   1 on mobile (or a carousel when there are many items). A fixed px width shrinks by itself (a custom width is
+   capped at 100%): set a tablet width only when the layout should change. No `calc()`,
    `min()` or `clamp()` in width fields, no `<br>` to break lines.
 7. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
    list them in the report. Ask for missing images instead of uploading random ones.
