@@ -92,8 +92,10 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
 1. **Take values from the site, not from taste.** Before authoring a section, read a similar section of the
    site and reuse its spacing, heading sizes, colors and radius; when the site has none, use the closest
    WoodMart template's values.
-2. **Inherit globals.** Fonts, colors and rounding come from Theme Settings. Use theme color variables
-   (`var(--wd-primary-color)`, or the block's color-variable attribute) instead of hex copies; set a value
+2. **Inherit globals.** Fonts, colors and rounding come from Theme Settings. On Gutenberg use the block's
+   color-variable attribute (`--wd-primary-color`, `--wd-alternative-color`) instead of hex copies. On Elementor
+   use the element's color preset where it has one (`wd_button` `color: "primary"`), otherwise a hex value, as
+   WoodMart's own Elementor demos do (with V4 on, theme globals: "Elementor V4 containers" rule 9). Set a value
    only where it differs from the global one. Page background: the site's main color in every Theme Settings
    page background (single product included, no preset just to recolor one page); a section gets its own
    background only where it differs, never to repeat the page color.
@@ -104,7 +106,10 @@ Do not continue through wp-cli, PHP, SQL or hand-built REST calls.
    `margin-bottom: -40` on the last one. Otherwise leave the gap alone.
 5. **No wrapper without a reason** (a background, a column, sticky, its own responsive behavior).
 6. **Responsive.** Reduce large headings and spacing on tablet and mobile; 4+ columns become 2 on tablet and
-   1 on mobile (or a carousel when there are many items). A fixed px width needs `100%` on tablet. No `calc()`,
+   1 on mobile (or a carousel when there are many items). A fixed px width shrinks by itself where it is capped
+   at 100% (Gutenberg custom width, Elementor top-level containers and widgets): set a tablet width there only
+   when the layout should change. A nested Elementor container with a px `width` inside a column is not capped:
+   give it `width_tablet` 100%, or lay out a wide block with `content_width: "boxed"` and `boxed_width`. No `calc()`,
    `min()` or `clamp()` in width fields, no `<br>` to break lines.
 7. **Say what you invented.** Texts, prices, policies or images the user did not give are placeholders:
    list them in the report. Ask for missing images instead of uploading random ones.
@@ -265,10 +270,11 @@ nothing. `replace-content` needs `allow_content_loss` to drop existing content; 
    Tree shape: `{"elType":"container","settings":{…},"elements":[{"elType":"widget","widgetType":"wd_title","settings":{…}}]}`.
 2. **Build with `wd_*` widgets.** When `elementor-list-elements` has `e-flexbox`, lay out with V4 containers
    (see "Elementor V4 containers"). With a V3 `container`: an empty `flex_direction` renders as a column; set
-   `flex_direction: "row"` for side-by-side items (and `flex_direction_mobile: "column"` to stack them). Items in a
-   row do not share the width equally; for equal columns use `container_type: "grid"` with `grid_columns_grid`
-   (defaults: 3 columns and 2 rows). On the WoodMart standard the kit gives containers no padding; on a site that
-   is not set up yet, run the last section first. Set `padding` only on containers with a background or border.
+   `flex_direction: "row"` for side-by-side items. Child containers in a row share its width equally by themselves
+   on desktop and tablet, and on mobile Elementor makes them 100% wide and wraps them. For other proportions
+   (40/60) or another tablet layout give the child containers a `%` `width`, as WoodMart demos do (they do not use
+   `container_type: "grid"`); add `width_mobile` only for a value other than 100%. On the WoodMart standard the kit
+   gives containers no padding; on a site that is not set up yet, run the last section first. Set `padding` only on containers with a background or border.
    `wd_infobox` takes an image or text as its icon, not an icon font.
 3. **Set every visible text.** Unset text controls render placeholder defaults (e.g. "Infobox subtitle text",
    "Read more"); give each one a value or `""`.
