@@ -95,6 +95,7 @@ These rules are non-negotiable because violating them can silently lose content 
    invent, copy, reuse, or send one inside update `attributes`.
 6. Pass `expected_content_hash` from the latest `gutenberg-get-content` response when editing.
    On a conflict, re-read the target and rebuild the intended operations against the new tree.
+7. Dynamic data in text: `content` = `<span data-wd-dynamic="{&quot;source&quot;:&quot;current_taxonomy&quot;,&quot;taxonomy&quot;:&quot;product_cat&quot;,&quot;option&quot;:&quot;term_name&quot;}" class="xts-dynamic-tags">{{Term Name}}</span>` (class and `{{Label}}` are required; no `type` key).
 
 If a deliberate full replacement might touch classic/freeform content outside registered
 blocks, first read with `include_raw_content: true`; `block_spec` otherwise cannot represent
